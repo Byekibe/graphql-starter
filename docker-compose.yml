@@ -1,0 +1,82 @@
+version: '3'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    user: node
+    command: npm start
+    restart: always
+    volumes:
+      - ./:/usr/src/app
+      # IMPORTANT: If you are using Windows, you might want to uncomment the entry below.
+      # https://jdlm.info/articles/2019/09/06/lessons-building-node-app-docker.html#the-node_modules-volume-trick
+      # - ./docker-volumes/node_modules:/usr/src/app/node_modules # https://stackoverflow.com/a/32785014
+    depends_on:
+      - supertokens
+      - db
+    ports:
+      - '8080:8080'
+      - '9229:9229'
+    tty: true
+
+  db:
+    image: postgres:15-alpine
+    user: root
+    restart: always
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db
+    volumes:
+      - ./docker-volumes/postgres:/var/lib/postgresql/data
+
+  # https://www.pgadmin.org/docs/pgadmin4/6.5/container_deployment.html
+  pgadmin:
+    image: dpage/pgadmin4:6
+    user: root
+    restart: always
+    ports:
+      - '8888:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: dev@app.com
+      PGADMIN_DEFAULT_PASSWORD: password
+    volumes:
+      - ./docker-volumes/pgadmin:/var/lib/pgadmin
+
+  redis:
+    image: redis:7-alpine
+    user: root
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - ./docker-volumes/redis:/data
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    user: root
+    restart: always
+    ports:
+      - '8889:8081'
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+
+  supertokens:
+    image: supertokens/supertokens-postgresql:4.6
+    user: root
+    restart: always
+    environment:
+      # IMPORTANT:
+      # Make sure to adjust this accordingly if you plan to test
+      # other than the local database
+      POSTGRESQL_CONNECTION_URI: 'postgresql://postgres:password@db:5432/db'
+      POSTGRESQL_TABLE_SCHEMA: 'supertokens'
+
+      # IMPORTANT:
+      # On Production, make sure to set a secure API KEY
+      # Read more here: https://supertokens.io/docs/session/common-customizations/core/api-keys
+      API_KEYS: 'graphql-starter-supertokens-api-key'
+    ports:
+      - '3567:3567'

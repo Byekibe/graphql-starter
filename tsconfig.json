@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext",
+    "lib": ["ESNext"],
+
+    "outDir": "./build",
+    "rootDir": "./",
+
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitReturns": true,
+
+    "baseUrl": ".",
+    "typeRoots": ["./@types", "./node_modules/@types"],
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
+    "esModuleInterop": true,
+
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true
+  },
+  "exclude": ["node_modules", "build", "gulpfile.js"],
+
+  "ts-node": {
+    "esm": true,
+    "transpileOnly": true
+  }
+}

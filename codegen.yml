@@ -1,0 +1,33 @@
+overwrite: true
+schema: './src/modules/**/*.graphql'
+documents: null
+require:
+  - ts-node/register
+  - tsconfig-paths/register
+generates:
+  ./src/generated/graphql/index.ts:
+    config:
+      typesPrefix: GQL_
+      maybeValue: T | null | undefined
+      contextType: '@/graphql/index.js#IGraphQLContext'
+      enumValues: '@/graphql/enums/index.js'
+      scalars:
+        DateTime: Date
+        Time: Date
+        Date: Date
+        ID: string
+      namingConvention:
+        enumValues: constant-case#constantCase
+    plugins:
+      - add:
+          content:
+            - /* eslint-disable */
+      - 'typescript'
+      - 'typescript-resolvers'
+    hooks:
+      afterOneFileWrite:
+        - prettier --write
+
+  ./src/generated/graphql/introspection.json:
+    plugins:
+      - introspection
